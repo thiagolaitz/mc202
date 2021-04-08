@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#define nsenhas 30
-#define max_length 9
+#define nsenhas 1000
+#define max_length 30
 
 char senha[nsenhas][max_length];
 int n;//indice do array senha
@@ -14,8 +14,8 @@ void valido(int res){//recebe o resultado
 	// 3 = in letra
 	// 4 = in digito
 	// 5 = in tamanho
-	
 	val[n] = res;
+	
 }
 
 void consec(){
@@ -26,9 +26,10 @@ void consec(){
 	int v_seq = 0;
 	int c_aux = 0;//Diz se c_seq >= 3
 	int vog_aux = 0;//diz se e' uma vogal
+	int vog_erro = 0;//diz se existe uma seq de vogal > 3
 	
 	for(size_t i=0; i<strlen(senha[n]); i++){
-		if(((senha[n][i] >= 97) & (senha[n][i] <= 122)) | ((senha[n][i] >= 65) & (senha[n][i] <= 90))){
+		if(((senha[n][i] >= 97) && (senha[n][i] <= 122)) || ((senha[n][i] >= 65) && (senha[n][i] <= 90))){
 		//confere se e' uma letra
 			for(int k =0; k<10; k++){//confere se e' vogal
 				if(senha[n][i] == vog[k]){
@@ -36,31 +37,37 @@ void consec(){
 					vog_aux = 1;
 					c_seq = 0;
 					if(v_seq == 3){
-						valido(2);
+						vog_erro = 1;
 					}
 				}
 			}
 			
-			if(vog_aux == 0){
+			if(vog_aux == 0){//Caso consoante
+				v_seq = 0;
 				c_seq++;
 
 				if(c_seq == 3){
 					c_aux = 1;
 				}
 			}
-			else{
+			else{//Caso vogal
 				vog_aux = 0;
 			}
 		}
+		else{
+			v_seq = 0;
+			c_seq = 0;
+		}
 	}
-	
-	if(c_aux == 1){
+
+	if((c_aux == 1) && (vog_erro == 0)){//ambos corretos
 		valido(1);
 	}
 	else{
 		valido(2);
 	}
 	
+	//printf("Vog erro: %d\n C_aux: %d\n v_seq:%d\n c_seq:%d\n", vog_erro, c_aux, v_seq, c_seq);
 }
 
 void letra(){
@@ -71,15 +78,15 @@ void letra(){
 	int min = 0;
 	
 	for(size_t i=0; i<strlen(senha[n]); i++){
-		if((senha[n][i] >= 97) & (senha[n][i] <= 122)){
+		if((senha[n][i] >= 97) && (senha[n][i] <= 122)){
 			min = 1;
 		}
-		else if((senha[n][i] >= 65) & (senha[n][i] <= 90)){
+		else if((senha[n][i] >= 65) && (senha[n][i] <= 90)){
 			mai = 1;
 		}
 	}	
 	
-	if((min == 1) & (mai == 1)){
+	if((min == 1) && (mai == 1)){
 		//printf("consec");
 		consec();
 	}
@@ -98,8 +105,8 @@ void digito(){
 			if(senha[n][i] == dig[v]){
 			//	printf("letra");
 				letra();
-				v = 100;
-				i = 100;
+				v = 500;
+				i = 500;
 				aux =1;
 			}
 		}
@@ -134,8 +141,8 @@ void vogal(){
 void tamanho(){
 	//Confere se possui mais de 8 caracteres
 	if(strlen(senha[n]) >= 8){
-		//printf("vogal");
 		vogal();
+		
 	}
 	else{
 		valido(5);
@@ -144,7 +151,7 @@ void tamanho(){
 }
 
 int main(){
-	char aux[15];
+	char aux[max_length];
 	
 	while(strcmp(aux,"fim") != 0){//Recebe a lista de strings
 		scanf("%s", &aux[0]);
