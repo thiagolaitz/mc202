@@ -2,7 +2,49 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define debug 1
+//#define debug 1
+
+char** resize(darray *A, float factor){
+	//shrinks or swell A->data by a factor and reallocates data index
+	char** buffer;
+	buffer = calloc(A->size, sizeof(char*));
+	
+	int index = A->first;
+	int i = 0;
+	while(i!=A->size){
+		buffer[i] = malloc((strlen(A->data[index])+1) * sizeof(char));
+		strcpy(buffer[i], A->data[index]);
+		free(A->data[index]);
+		i++;
+		if (index+1 == A->capacity){
+			index=0;
+		}
+		else{
+			index++;
+		}
+	}
+	
+	A->data = realloc(A->data, (factor*A->capacity)*sizeof(char*));
+	
+	i = 0;
+	while(i!=A->size){
+		A->data[i] = malloc((strlen(buffer[i])+1)*sizeof(char));
+		strcpy(A->data[i], buffer[i]);
+		free(buffer[i]);
+		i++;
+	}
+	
+	free(buffer);
+	A->capacity = factor*A->capacity;
+	A->first = 0;
+	
+	#ifdef debug
+	printf("New Capacity: %d\n", A->capacity);
+	printf("First: %d\n", A->capacity);
+	#endif
+	
+	return A->data;
+}
 
 darray* da_alloc(int capacity){
 	darray *pdarray = malloc(sizeof(darray));
@@ -21,41 +63,67 @@ darray* da_alloc(int capacity){
 
 void da_free(darray* A){
 
-	for (int i=0; i<A->capacity; i++){
-		free(A->data[i]);
+	int index = A->first;
+	int i = 0;
+	if (A->first !=-1){	
+		while(i!=A->size){
+			free(A->data[index]);
+			i++;
+			if (index == A->capacity){
+				index=0;
+			}
+			else{
+				index++;
+			}
+		}
 	}
-	free(A->data);
 	free(A);
 }
 
 int da_push(darray* A, char* string){
 	int index;//Index to insert
 	
+	if (A->capacity == A->size){
+		A->data = resize(A,2.0);
+		if (!A->data) return 0;
+
+	}
+	
 	if (A->first + A->size < A->capacity){
+		if (A->first != -1){
 			index = A->first + A->size;
+		}
+		else {
+			index = 0;
+		}
 	}
 	else {
 			index = A->first - A->capacity + A->size;
 	}
 	
-	if (A->capacity == A->size){
-		A->data = realloc(A->data, (2*A->capacity)*sizeof(char*));
-		if (!A) return 0;
-		A->capacity = 2*A->capacity;
-	}
-	
-	A->data[A->first + A->size + 1] = malloc(strlen(string)*sizeof(char));
+	A->data[index] = malloc((strlen(string)+1)*sizeof(char));
 	if (!A->data) return 0;
-	strcpy(A->data[A->first + A->size + 1], string);
+	strcpy(A->data[index], string);
 	
 	if (A->size == 0 && A->first == -1) A->first++;
 	A->size++;
+	
+	#ifdef debug
+	printf("Index: %d\n", index);
+	printf("Size: %d\n", A->size);
+	#endif
 	
 	return 1;
 
 }
 
 char* da_pop(darray* A){
+	
+	if (A->capacity >= 4*(A->size-1)&& A->capacity > A->min_cap){
+		A->data = resize(A,0.5);
+		if (!A->data) return NULL;
+	}
+	
 	int index = 0;//index to remove
 	
 	if (A->first + A->size <= A->capacity){
@@ -65,24 +133,22 @@ char* da_pop(darray* A){
 		index = A->first - A->capacity + A->size -1;
 	}
 	
-	if (A->capacity <= 4*A->size && A->capacity > A->min_cap){
-		A->data = realloc(A->data, (A->capacity)*sizeof(char*)*0.5);
-		if (!A->data) return NULL;
-		A->capacity = A->capacity/2;
+	
+	if (A->size != 0) {
+		A->size--;
+		return A->data[index];
 	}
-	
-	if (A->size != 0) A->size--;
-	
-	return A->data[index];
+	else{
+		return NULL;
+	}
 }
 
 int da_inject(darray* A, char* string){
 	int index;//Index to insert
 
 	if (A->capacity == A->size){
-		A->data = realloc(A->data, A->capacity*2*sizeof(char*));
+		A->data = resize(A,2.0);
 		if (!A->data) return 0;
-		A->capacity = 2*A->capacity;
 	}		
 	
 	if (A->first -1 >= 0){
@@ -92,24 +158,43 @@ int da_inject(darray* A, char* string){
 		index = A->capacity - 1;
 	}
 
+	A->data[index] = malloc((strlen(string)+1)*sizeof(char));
+	if (!A->data) return 0;
 	strcpy(A->data[index], string);
+	
+	A->first = index;
 	A->size++;
+	
+	#ifdef debug
+	printf("Size: %d\n", A->size);
+	printf("First: %d\n", A->first);
+	#endif
 	
 	return 1;
 }
 
 char* da_eject(darray* A){
-	int index = A->first;//Index to remove
 	
-	if (A->capacity <= 4*A->size && A->capacity > A->min_cap){
-		A->data = realloc(A->data, (A->capacity)*sizeof(char*)*0.5);
+	if (A->capacity >= 4*(A->size-1) && A->capacity > A->min_cap){
+		A->data = resize(A,0.5);
 		if (!A->data) return NULL;
-		A->capacity = A->capacity/2;
 	}
+	int index = A->first;//Index to remove
 
-	if (A->size != -1) A->size--;
+	if (A->size != 0) A->size--;
 	
+	if (A->first + 1 < A->capacity){
+		A->first++;
+	}
+	else{
+		A->first = 0;
+	}
+	
+	#ifdef debug
+	printf("Removed: %s\n", A->data[index]);
+	#endif
 	return A->data[index];
+	
 }
 
 char* da_first(darray* A){
@@ -118,8 +203,18 @@ char* da_first(darray* A){
 }
 	
 char* da_last(darray* A){
-	if (A->size != 0) return A->data[A->first + A->size];
-	return NULL;
+	int index;
+	if (A->first + A->size <= A->capacity){
+		index = A->first + A->size - 1;
+	}
+	else {
+		index = A->first - A->capacity + A->size -1;
+	}
+	if (A->size == 0){
+		return NULL;
+	}
+	
+	return A->data[index];
 }
 
 int da_is_empty(darray* A){

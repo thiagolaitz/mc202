@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <string.h>
 #include "darray.h"
-
+//#define debug 1
 
 ssize_t getdelim(char **linep, size_t *n, int delim, FILE *fp) {
   int ch;
@@ -42,6 +42,27 @@ ssize_t getline(char **linep, size_t *n, FILE *fp) {
   return getdelim(linep, n, '\n', fp);
 }
 
+void debug1(darray * A){
+	printf("Capacity: %d\n", A->capacity);
+	printf("Size: %d\n", A->size);
+	printf("Min-cap: %d\n", A->min_cap);
+	printf("First: %d\n\n", A->first);
+	printf("Sequence:\n");
+	
+	int index = A->first;
+	int i = 0;
+	while(i!=A->size){
+		printf(" %d: %s ", index,A->data[index]);
+		i++;
+		if (index+1 == A->capacity){
+			index=0;
+		}
+		else{
+			index++;
+		}
+	}
+	printf("\n");
+}
 
 
 int main(void) {
@@ -74,6 +95,9 @@ int main(void) {
         printf("Unable to resize at push.\n");
         exit(1);
       }
+      #ifdef debug
+      debug1(D);
+      #endif
     }
 
     else if (strcmp(cmd,"pop") == 0) {
@@ -81,6 +105,9 @@ int main(void) {
         char* str = da_pop(D);
         free(str);
       }
+      #ifdef debug
+      debug1(D);
+      #endif
     }
 
     else if (strcmp(cmd,"inject") == 0) {
@@ -96,6 +123,9 @@ int main(void) {
         printf("Unable to resize at inject.\n");
         exit(1);
       }
+      #ifdef debug
+      debug1(D);
+      #endif
     }
 
     else if (strcmp(cmd,"eject") == 0) {
@@ -103,16 +133,25 @@ int main(void) {
         char* str = da_eject(D);
         free(str);
       }
+      #ifdef debug
+      debug1(D);
+      #endif
     }
 
     else if (strcmp(cmd,"print-first") == 0) {
       if (!da_is_empty(D))
         printf("%s\n",da_first(D));
+      #ifdef debug
+      debug1(D);
+      #endif
     }
 
     else if (strcmp(cmd,"print-last") == 0) {
       if (!da_is_empty(D))
         printf("%s\n",da_last(D));
+		#ifdef debug
+        debug1(D);
+        #endif
     }
 
     else if (strcmp(cmd,"is-empty") == 0) {
@@ -120,17 +159,27 @@ int main(void) {
         printf("-yep\n");
       else
         printf("-nope\n");
+      #ifdef debug
+      debug1(D);
+      #endif
     }
 
     else if (strcmp(cmd,"exit") == 0) {
       da_free(D);
+      #ifdef debug
+      printf("Free2\n");
+      #endif
       free(line);
+      
       return 0;
     }
     
     else {
       printf("Ups, invalid command %s\n",cmd);
       exit(1);
+      #ifdef debug
+      debug1(D);
+      #endif
     }
   }
 
