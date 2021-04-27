@@ -10,12 +10,11 @@ char** resize(darray *A, float factor){
 	buffer = calloc(A->size, sizeof(char*));
 	
 	int index = A->first;
-	int i = 0;
-	while(i!=A->size){
+
+	for (int i=0; i<A->size; i++){
 		buffer[i] = malloc((strlen(A->data[index])+1) * sizeof(char));
 		strcpy(buffer[i], A->data[index]);
 		free(A->data[index]);
-		i++;
 		if (index+1 == A->capacity){
 			index=0;
 		}
@@ -27,7 +26,7 @@ char** resize(darray *A, float factor){
 	A->data = realloc(A->data, (factor*A->capacity)*sizeof(char*));
 	
 	i = 0;
-	while(i!=A->size){
+	for (int i=0; i<A->size; i++){
 		A->data[i] = malloc((strlen(buffer[i])+1)*sizeof(char));
 		strcpy(A->data[i], buffer[i]);
 		free(buffer[i]);
@@ -64,9 +63,8 @@ darray* da_alloc(int capacity){
 void da_free(darray* A){
 
 	int index = A->first;
-	int i = 0;
 	if (A->first !=-1){	
-		while(i!=A->size){
+		for (int i=0; i<A->size; i++){
 			free(A->data[index]);
 			i++;
 			if (index == A->capacity){
