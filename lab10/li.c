@@ -4,7 +4,7 @@
 
 #include "li.h"
 
-//#define debug 1
+#define debug 1
 
 void li_free(li* L){
 	
@@ -77,12 +77,12 @@ tuple* li_alloc(int n_size){
 }
 
 int li_mtf(li* L, int* num, int r){
-
+	
 	int mtf = 0;		
 	
-	node* n;
-	node* previous;
-	node* next;
+	node* n = NULL;
+	node* previous = NULL;
+	node* next = NULL;	
 	
 	for (int q=0; q<r; q++){
 		n = L->head;
@@ -110,10 +110,10 @@ int li_transp(li* L, int* num, int r){
 
 	int transp = 0;	
 	
-	node* n;
-	node* previous;
-	node* p_previous;
-	node* next;
+	node* n = NULL;
+	node* previous = NULL;
+	node* p_previous = NULL;
+	node* next = NULL;
 	
 	int cont =0;
 	for (int q=0; q<r; q++){
@@ -143,15 +143,15 @@ int li_transp(li* L, int* num, int r){
 		cont = 0;
 
 	}
-
+	
 	return transp;
 }
 
 //Remove from pos (!=0) and insert at pos_in position. Return L updated.
 li* li_remove(li* L, int pos, int pos_in){
 	
-	node* previous;
-	node* next;
+	node* previous = NULL;
+	node* next = NULL;
 	node* n = L->head;
 	
 	for (int i=0; i<pos; i++){
@@ -182,7 +182,9 @@ li* li_remove(li* L, int pos, int pos_in){
 
 int li_count(li* L, int* num, int r, int N){
 	int count = 0;
-	int counter[N];
+	
+	int* counter = malloc(N*sizeof(int));
+	
 	int pos = 0;
 	int pos_in = 0;
 	
@@ -228,15 +230,10 @@ int li_count(li* L, int* num, int r, int N){
 			L = li_remove(L,pos,pos_in);
 		}
 	
-		#ifdef debug
-		li_print(L);
-		printf("Pos: %d, Pos_in: %d\n", pos, pos_in);
-		for (int i=0; i<N; i++){
-			printf("%d ", counter[i]);
-		}
-		#endif
-		
 		pos = 0;
 	}
+	
+	free(counter);
+	
 	return count;
 }

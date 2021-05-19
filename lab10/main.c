@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "li.h"
 
-#define debug 1
+//#define debug 1
 
 int main(){
 	
@@ -14,7 +14,8 @@ int main(){
 	scanf("%d ", &n);
 	scanf("%d ", &r);
 	
-	int num[r];//Num to be searched
+	//int num[r];//Num to be searched
+	int* num = malloc(r*sizeof(int));
 	
 	tuple* L = li_alloc(n);
 	li* L1 = L->t1;
@@ -29,6 +30,7 @@ int main(){
 	for (int k=0; k<r; k++){
 		scanf("%d", &num[k]);
 	}
+	
 	
 	mtf = li_mtf(L1,num,r);
 	if (!mtf) exit(errno);
@@ -46,6 +48,7 @@ int main(){
 	printf("Transpose: %d\n", transp);
 	printf("Count: %d\n", count);
 	
+	free(num);
 	
 	return 0;
 }
