@@ -226,9 +226,11 @@ int avl(node* n){
 }
 
 /*
-This function receives as an input the root node and the maximum height
-of a binary search tree. Using the given information, it searches the rightmost path comparing the current path height and the maximum height.
-It is done by always trying to go using the right node; at the end of a path, it backs to the point where you have gone to the right but could have gone to the left. For mapping the path, it uses an auxiliary vector which has the values 0(left), 1(right), and -1(back). 
+This function receives as an input the root node and the maximum height of a binary search tree. Using the given information,
+it searches the rightmost path comparing the current path height and the maximum height.
+It is done by always trying to go using the right node; 
+at the end of a path, it backs to the point where you have gone to the right but could have gone to the left.
+For mapping the path, it uses an auxiliary vector which has the values 0(left), 1(right), and -1(back). 
 */
 void path(node* n,int height){
 		int array[height];
