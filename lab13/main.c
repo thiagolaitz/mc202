@@ -11,7 +11,7 @@ int main(){
 	unsigned char text[251];
 	int aux;//receive the search value
 	
-	for (int k=0; k<m; k++){//Define standard values for the hashtable
+	for (int k=0; k<m; k++){//Define default values for the hashtable
 		hashTable[k].state = -1;
 		hashTable[k].timestamp = -1;
 	}
